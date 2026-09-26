@@ -152,7 +152,7 @@ namespace DexHigh.Editor
             aiMat.SetFloat("_Smoothness", 0.45f);
             set.aiMat = aiMat;
 
-            // 3. Arena Floor Material
+            // 3. Arena Floor Material (Sandy Ochre Gladiatorial Pit)
             string floorMatPath = $"{MatDir}/M_ArenaFloor.mat";
             Material floorMat = AssetDatabase.LoadAssetAtPath<Material>(floorMatPath);
             if (floorMat == null)
@@ -161,11 +161,11 @@ namespace DexHigh.Editor
                 AssetDatabase.CreateAsset(floorMat, floorMatPath);
             }
             floorMat.name = "M_ArenaFloor";
-            floorMat.SetColor("_BaseColor", new Color(0.15f, 0.17f, 0.20f));
-            floorMat.SetFloat("_Smoothness", 0.35f);
+            floorMat.SetColor("_BaseColor", new Color(0.76f, 0.58f, 0.38f));
+            floorMat.SetFloat("_Smoothness", 0.12f);
             set.floorMat = floorMat;
 
-            // 4. Arena Trim Material
+            // 4. Arena Trim Material (Roman Stone Trim)
             string trimMatPath = $"{MatDir}/M_ArenaTrim.mat";
             Material trimMat = AssetDatabase.LoadAssetAtPath<Material>(trimMatPath);
             if (trimMat == null)
@@ -174,12 +174,12 @@ namespace DexHigh.Editor
                 AssetDatabase.CreateAsset(trimMat, trimMatPath);
             }
             trimMat.name = "M_ArenaTrim";
-            trimMat.SetColor("_BaseColor", new Color(0.60f, 0.48f, 0.22f));
-            trimMat.SetFloat("_Metallic", 0.7f);
-            trimMat.SetFloat("_Smoothness", 0.65f);
+            trimMat.SetColor("_BaseColor", new Color(0.50f, 0.38f, 0.27f));
+            trimMat.SetFloat("_Metallic", 0.0f);
+            trimMat.SetFloat("_Smoothness", 0.28f);
             set.trimMat = trimMat;
 
-            // 5. Pillar Material
+            // 5. Pillar Material (Weathered Travertine Colosseum Stone)
             string pillarMatPath = $"{MatDir}/M_ArenaPillar.mat";
             Material pillarMat = AssetDatabase.LoadAssetAtPath<Material>(pillarMatPath);
             if (pillarMat == null)
@@ -188,8 +188,8 @@ namespace DexHigh.Editor
                 AssetDatabase.CreateAsset(pillarMat, pillarMatPath);
             }
             pillarMat.name = "M_ArenaPillar";
-            pillarMat.SetColor("_BaseColor", new Color(0.12f, 0.13f, 0.15f));
-            pillarMat.SetFloat("_Smoothness", 0.25f);
+            pillarMat.SetColor("_BaseColor", new Color(0.62f, 0.48f, 0.34f));
+            pillarMat.SetFloat("_Smoothness", 0.22f);
             set.pillarMat = pillarMat;
 
             // 6. VFX Material
@@ -556,116 +556,9 @@ namespace DexHigh.Editor
             SetPrivateField(combatCam, "_minDistance", 12f);
             SetPrivateField(combatCam, "_maxDistance", 30f);
 
-            // 3. Lighting & PostProcessing Root
-            GameObject lightingRoot = new GameObject("Lighting & PostProcessing");
+            // 3. Environment, Golden Lighting, Volumetric God Rays & Atmosphere
+            DexHigh.EditorTools.ColosseumLightingBuilder.BuildAtmosphere();
 
-            // Sun Directional Light
-            GameObject sunObj = new GameObject("Directional Light (Sun)");
-            sunObj.transform.parent = lightingRoot.transform;
-            sunObj.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
-            var sunLight = sunObj.AddComponent<Light>();
-            sunLight.type = LightType.Directional;
-            sunLight.intensity = 1.6f;
-            sunLight.color = new Color(1f, 0.95f, 0.85f);
-            sunLight.shadows = LightShadows.Soft;
-
-            // Fill Light
-            GameObject fillObj = new GameObject("Directional Light (Fill)");
-            fillObj.transform.parent = lightingRoot.transform;
-            fillObj.transform.rotation = Quaternion.Euler(60f, 150f, 0f);
-            var fillLight = fillObj.AddComponent<Light>();
-            fillLight.type = LightType.Directional;
-            fillLight.intensity = 0.4f;
-            fillLight.color = new Color(0.5f, 0.65f, 0.85f);
-            fillLight.shadows = LightShadows.None;
-
-            // Post Processing Volume
-            GameObject volumeObj = new GameObject("Global Volume");
-            volumeObj.transform.parent = lightingRoot.transform;
-            var volume = volumeObj.AddComponent<Volume>();
-            volume.isGlobal = true;
-            VolumeProfile profile = ScriptableObject.CreateInstance<VolumeProfile>();
-            profile.name = "Arena_VolumeProfile";
-
-            var bloom = profile.Add<Bloom>(true);
-            bloom.intensity.Override(0.85f);
-            bloom.threshold.Override(0.9f);
-            bloom.scatter.Override(0.7f);
-
-            var vignette = profile.Add<Vignette>(true);
-            vignette.intensity.Override(0.28f);
-            vignette.smoothness.Override(0.45f);
-
-            var colorAdjustments = profile.Add<ColorAdjustments>(true);
-            colorAdjustments.postExposure.Override(0.2f);
-            colorAdjustments.contrast.Override(12f);
-            colorAdjustments.saturation.Override(10f);
-
-            var tonemapping = profile.Add<Tonemapping>(true);
-            tonemapping.mode.Override(TonemappingMode.ACES);
-
-            string profilePath = $"{SODir}/Arena_VolumeProfile.asset";
-            AssetDatabase.CreateAsset(profile, profilePath);
-            volume.sharedProfile = profile;
-
-            // 4. Environment Root
-            float arenaDiameter = 42f;
-            GameObject envRoot = new GameObject("Environment");
-            var arenaBounds = envRoot.AddComponent<ArenaBounds>();
-            SetPrivateField(arenaBounds, "_arenaSize", new Vector2(arenaDiameter, arenaDiameter));
-            SetPrivateField(arenaBounds, "_wallHeight", 8f);
-            SetPrivateField(arenaBounds, "_generateColliders", true);
-
-            // Floor
-            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            floor.name = "Arena_Floor";
-            floor.transform.parent = envRoot.transform;
-            floor.transform.localPosition = new Vector3(0f, -0.25f, 0f);
-            floor.transform.localScale = new Vector3(arenaDiameter, 0.3f, arenaDiameter);
-            if (mats.floorMat != null) floor.GetComponent<Renderer>().sharedMaterial = mats.floorMat;
-
-            // Trim Ring
-            GameObject trim = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            trim.name = "Arena_Trim";
-            trim.transform.parent = envRoot.transform;
-            trim.transform.localPosition = new Vector3(0f, -0.28f, 0f);
-            trim.transform.localScale = new Vector3(arenaDiameter + 2.5f, 0.25f, arenaDiameter + 2.5f);
-            if (mats.trimMat != null) trim.GetComponent<Renderer>().sharedMaterial = mats.trimMat;
-
-            // NavMesh Surface on Arena Floor
-            var navSurface = floor.AddComponent<NavMeshSurface>();
-            navSurface.collectObjects = CollectObjects.All;
-            navSurface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
-            navSurface.BuildNavMesh();
-
-            // Pillars Nested Parent
-            GameObject pillarsRoot = new GameObject("Pillars");
-            pillarsRoot.transform.parent = envRoot.transform;
-
-            int pillarCount = 8;
-            float pillarRadius = (arenaDiameter * 0.5f) - 0.5f;
-            for (int i = 0; i < pillarCount; i++)
-            {
-                float angle = (i * Mathf.PI * 2f) / pillarCount;
-                Vector3 pillarPos = new Vector3(Mathf.Cos(angle) * pillarRadius, 3.0f, Mathf.Sin(angle) * pillarRadius);
-
-                GameObject pillar = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                pillar.name = $"Pillar_{i + 1}";
-                pillar.transform.parent = pillarsRoot.transform;
-                pillar.transform.localPosition = pillarPos;
-                pillar.transform.localScale = new Vector3(1.5f, 3.0f, 1.5f);
-                if (mats.pillarMat != null) pillar.GetComponent<Renderer>().sharedMaterial = mats.pillarMat;
-
-                // Torch / Rune light on pillar
-                GameObject lightObj = new GameObject($"PillarLight_{i + 1}");
-                lightObj.transform.parent = pillar.transform;
-                lightObj.transform.localPosition = new Vector3(0f, 1.1f, 0f);
-                var pLight = lightObj.AddComponent<Light>();
-                pLight.type = LightType.Point;
-                pLight.range = 10f;
-                pLight.intensity = (i % 2 == 0) ? 1.5f : 1.2f;
-                pLight.color = (i % 2 == 0) ? new Color(1f, 0.65f, 0.2f) : new Color(0.3f, 0.75f, 1f);
-            }
 
             // 5. Combatants Root
             GameObject combatantsRoot = new GameObject("Combatants");

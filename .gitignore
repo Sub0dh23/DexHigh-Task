@@ -50,3 +50,5 @@ Thumbs.db
 Tools/
 *.py
 __pycache__/
+Assets/Screenshots/
+Assets/Screenshots.meta

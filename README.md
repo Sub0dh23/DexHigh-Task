@@ -76,6 +76,9 @@ The AI Dragon ([`AIDragonController.cs`](Assets/_Project/Scripts/AI/AIDragonCont
 
 ## ✨ Visual Polish, UI & Game Feel ("Juice")
 
+- **Roman Colosseum Arena & Atmosphere:** Multi-tiered gladiatorial amphitheater featuring 28 arched arcade bays, columns, spectator seating tiers, inner flagstone rings, and perimeter rock rubble.
+- **Golden-Hour Lighting & Volumetric God Rays:** Warm golden directional key light (46° angle, intensity 2.85) with soft contact shadows, warm terracotta ground bounce fill light, volumetric sun shafts slicing through upper arches, and suspended drifting golden dust motes.
+- **Cinematic Color Grading & Post-Processing:** ACES filmic tonemapping, warm golden-hour white balance (+24°), warm split toning (deep umber shadows, earthy bronze midtones, radiant gold highlights), subtle atmospheric bloom, and sepia edge vignette.
 - **Dota 2-Inspired Combat HUD:** Clean bottom-bar HUD displaying player status, health bar with smooth lerping, and active cooldown sweeps for all 3 ability slots.
 - **Tactical Reticle & Ground Indicators:** Custom circular telegraph indicators for area attacks, preventing cursor drift during ability execution.
 - **Dynamic Combat Camera:** [`DynamicCombatCamera.cs`](Assets/_Project/Scripts/Camera/DynamicCombatCamera.cs) provides smooth lerped following with subtle look-ahead based on player movement, coupled with a 6-degree impulse shake system on heavy impacts.
