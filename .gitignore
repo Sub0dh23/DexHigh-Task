@@ -45,3 +45,8 @@ sysinfo.txt
 # OS generated
 .DS_Store
 Thumbs.db
+
+# Development scripts and offline tools
+Tools/
+*.py
+__pycache__/
