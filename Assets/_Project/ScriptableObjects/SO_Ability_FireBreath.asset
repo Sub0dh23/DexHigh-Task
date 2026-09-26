@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3804fb4b520e7246aacd6e5a1b461206, type: 3}
+  m_Name: SO_Ability_FireBreath
+  m_EditorClassIdentifier: Assembly-CSharp::DexHigh.Combat.AbilityData
+  _abilityType: 0
+  _abilityName: Fire Breath
+  _description: Channeled searing flame cone dealing continuous fire damage in front.
+  _icon: {fileID: 21300000, guid: 83782dcd40ff4b3779e8d1d2150170b7, type: 3}
+  _defaultHotkey: 113
+  _baseDamage: 35
+  _cooldown: 4
+  _castDuration: 1.4
+  _effectiveRange: 8.5
+  _minRange: 0
+  _knockbackForce: 4
+  _animationTrigger: FireBreath
+  _vfxPrefab: {fileID: 3394217991519363640, guid: ed01520dd962c6e87a930b15b7df3ee8, type: 3}
+  _impactVfxPrefab: {fileID: 0}
+  _targetIndicatorPrefab: {fileID: 0}
+  _castAudioClip: {fileID: 0}
+  _impactAudioClip: {fileID: 0}

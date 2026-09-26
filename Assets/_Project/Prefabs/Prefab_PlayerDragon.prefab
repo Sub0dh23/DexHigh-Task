@@ -1,0 +1,261 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4124786161457885406
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2053035956522886327}
+  - component: {fileID: 8874776841127475007}
+  - component: {fileID: 5080561367208186078}
+  - component: {fileID: 8632995800464925689}
+  - component: {fileID: 3085789243662064595}
+  - component: {fileID: 5404456075307919320}
+  - component: {fileID: 2406846238987415130}
+  m_Layer: 0
+  m_Name: Prefab_PlayerDragon
+  m_TagString: Player
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2053035956522886327
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124786161457885406}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 367707258114963668}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &8874776841127475007
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124786161457885406}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2.2
+  m_Radius: 1.1
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1.1, z: 0}
+--- !u!114 &5080561367208186078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124786161457885406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d904ef5a5e31d94cd87c84f51b951ff0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DexHigh.Characters.DragonHealth
+  _maxHealth: 200
+  _characterName: Inferno Drake (Player)
+  _isPlayer: 1
+  _meshRenderers: []
+  _flashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  _flashDuration: 0.15
+--- !u!114 &8632995800464925689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124786161457885406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7a0c585fa83274738be91d600b00a8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DexHigh.Characters.DragonMotor
+  _moveSpeed: 7
+  _rotationSpeed: 14
+  _gravity: 20
+  _knockbackDamping: 6
+  _baseFlightAltitude: 1.8
+  _flightAscendSpeed: 8
+--- !u!114 &3085789243662064595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124786161457885406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92061519028d60bb9b8cd9d6232ca8ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DexHigh.Combat.DragonCombat
+  _abilities:
+  - {fileID: 11400000, guid: f9406c999045d2d79affa9ba84940336, type: 2}
+  - {fileID: 11400000, guid: ab5b8759d43697941a57beb9800cc0d2, type: 2}
+  - {fileID: 11400000, guid: 8205486e1af49d63a822263323b765f3, type: 2}
+  _mouthTransform: {fileID: 6649066978047565720}
+  _tailTransform: {fileID: 3739358649651644054}
+  _groundIndicatorAnchor: {fileID: 0}
+  _motor: {fileID: 0}
+  _health: {fileID: 0}
+  _animator: {fileID: 6051279998855914158}
+--- !u!114 &5404456075307919320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124786161457885406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1b14511a985f7d80ab9a2e960ccf82e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DexHigh.Characters.PlayerDragonController
+  _mainCamera: {fileID: 0}
+  _groundLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &2406846238987415130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124786161457885406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b3c710595e3545b18c90a71e3d60bff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DexHigh.Characters.DragonProceduralAnimator
+  _animator: {fileID: 6051279998855914158}
+--- !u!1001 &184896834223415103
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2053035956522886327}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.085
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.085
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.085
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.00000004371139
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -1464924116525899908, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 62c8a640e26b928ec902e6431d62c1b0, type: 2}
+    - target: {fileID: 919132149155446097, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_Name
+      value: Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 2999547427973083928, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 62c8a640e26b928ec902e6431d62c1b0, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 6f40b9fa5e63d9c3b95d53f883b46bc4, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: m_CullingMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8573838873104305173, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 62c8a640e26b928ec902e6431d62c1b0, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+--- !u!4 &367707258114963668 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+  m_PrefabInstance: {fileID: 184896834223415103}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3739358649651644054 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -5659832510226474583, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+  m_PrefabInstance: {fileID: 184896834223415103}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &6051279998855914158 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+  m_PrefabInstance: {fileID: 184896834223415103}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6649066978047565720 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2389483404841910105, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+  m_PrefabInstance: {fileID: 184896834223415103}
+  m_PrefabAsset: {fileID: 0}
