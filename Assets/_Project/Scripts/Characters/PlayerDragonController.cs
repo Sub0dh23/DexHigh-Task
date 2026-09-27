@@ -95,19 +95,28 @@ namespace DexHigh.Characters
 
             Ray ray = _mainCamera.ScreenPointToRay(mouseScreenPos);
 
-            // Mathematical combat plane at dragon altitude: 100% immune to self-collision and obstacle height noise
-            Plane aimPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
-            if (aimPlane.Raycast(ray, out float enter))
+            // Ground combat plane at arena floor height
+            Plane aimPlane = new Plane(Vector3.up, Vector3.zero);
+            if (aimPlane.Raycast(ray, out float enter) && enter > 0f)
             {
                 Vector3 worldHit = ray.GetPoint(enter);
+                // Clamp aim strictly inside circular arena floor
+                Vector2 horiz = new Vector2(worldHit.x, worldHit.z);
+                float maxAimRadius = 18.2f;
+                if (horiz.sqrMagnitude > maxAimRadius * maxAimRadius)
+                {
+                    horiz = horiz.normalized * maxAimRadius;
+                    worldHit.x = horiz.x;
+                    worldHit.z = horiz.y;
+                }
+                worldHit.y = 0f;
+                CurrentAimPoint = worldHit;
+
                 Vector3 toHit = worldHit - transform.position;
                 toHit.y = 0f;
 
-                // Deadzone check: prevent 360-degree snap when hovering cursor directly over dragon
-                if (toHit.sqrMagnitude >= 1.2f * 1.2f)
+                if (toHit.sqrMagnitude >= 0.5f * 0.5f)
                 {
-                    toHit = Vector3.ClampMagnitude(toHit, 20f);
-                    CurrentAimPoint = transform.position + toHit;
                     _motor.SetLookTarget(CurrentAimPoint);
                 }
             }

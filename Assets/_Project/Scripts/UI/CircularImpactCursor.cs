@@ -12,9 +12,9 @@ namespace DexHigh.UI
     {
         [Header("Targeting & Height")]
         [SerializeField] private PlayerDragonController _playerController;
-        [SerializeField] private float _groundYOffset = 0.06f;
-        [SerializeField] private float _smoothFollowSpeed = 28f;
-        [SerializeField] private float _defaultScale = 1.2f;
+        [SerializeField] private float _groundYOffset = 0.08f;
+        [SerializeField] private float _smoothFollowSpeed = 35f;
+        [SerializeField] private float _defaultScale = 0.52f;
 
         [Header("Visual Components (Layered Reticle)")]
         [SerializeField] private SpriteRenderer _outerTicksRenderer;
@@ -23,16 +23,16 @@ namespace DexHigh.UI
         [SerializeField] private SpriteRenderer _centerFocalRenderer;
 
         [Header("Rotation & Breathing Dynamics")]
-        [SerializeField] private float _outerRotationSpeed = -12f;
-        [SerializeField] private float _midRotationSpeed = 16f;
+        [SerializeField] private float _outerRotationSpeed = -15f;
+        [SerializeField] private float _midRotationSpeed = 20f;
         [SerializeField] private float _breathingFrequency = 2.4f;
-        [SerializeField] private float _breathingAmplitude = 0.05f;
+        [SerializeField] private float _breathingAmplitude = 0.06f;
 
         [Header("Attack Concentration Feedback")]
-        [SerializeField] private float _concentrationLockRadius = 1.1f;
-        [SerializeField] private Color _neutralColor = new Color(1.0f, 0.55f, 0.12f, 0.9f);
-        [SerializeField] private Color _lockedColor = new Color(1.0f, 0.18f, 0.08f, 1.0f);
-        [SerializeField] private Color _chargingColor = new Color(1.0f, 0.85f, 0.25f, 1.0f);
+        [SerializeField] private float _concentrationLockRadius = 2.4f;
+        [SerializeField] private Color _neutralColor = new Color(0.15f, 0.95f, 1.0f, 1.0f); // Vivid Electric Cyan
+        [SerializeField] private Color _lockedColor = new Color(1.0f, 0.20f, 0.10f, 1.0f); // Blazing Crimson Red
+        [SerializeField] private Color _chargingColor = new Color(1.0f, 0.90f, 0.25f, 1.0f); // Radiant Solar Gold
 
         [Header("Target Detection")]
         [SerializeField] private LayerMask _targetLayers = ~0;
@@ -61,7 +61,31 @@ namespace DexHigh.UI
                 _playerCombat = _playerController.GetComponent<DragonCombat>();
             }
 
+            // Ensure all reticle sprite renderers use high-visibility URP reticle shader
+            var reticleShader = Shader.Find("DexHigh/CombatReticle");
+            if (reticleShader == null) reticleShader = Shader.Find("DexHigh/CombatReticleAdditive");
+            if (reticleShader == null) reticleShader = Shader.Find("Sprites/Default");
+
+            foreach (var sr in GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (sr.sharedMaterial == null || sr.sharedMaterial.shader.name.Contains("2D") || sr.sharedMaterial.shader.name == "Sprites/Default")
+                {
+                    if (reticleShader != null)
+                    {
+                        var mat = new Material(reticleShader);
+                        mat.SetFloat("_SrcBlend", 5f); // SrcAlpha
+                        mat.SetFloat("_DstBlend", 1f); // One (Additive)
+                        mat.SetFloat("_Intensity", 1.6f);
+                        mat.renderQueue = 3200;
+                        sr.sharedMaterial = mat;
+                    }
+                }
+                sr.sortingOrder = 25;
+            }
+
             _currentPosition = transform.position;
+            _currentPosition.y = _groundYOffset;
+            transform.position = _currentPosition;
         }
 
         private void OnEnable()
@@ -86,6 +110,13 @@ namespace DexHigh.UI
         {
             transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             transform.localScale = Vector3.one * _defaultScale;
+
+            if (_playerController != null && _playerController.CurrentAimPoint.sqrMagnitude > 0.1f)
+            {
+                _currentPosition = _playerController.CurrentAimPoint;
+                _currentPosition.y = _groundYOffset;
+                transform.position = _currentPosition;
+            }
         }
 
         private void Update()
@@ -119,9 +150,45 @@ namespace DexHigh.UI
             }
 
             Vector3 targetAim = transform.position;
-            if (_playerController != null)
+            bool gotAim = false;
+
+            if (_playerController != null && _playerController.CurrentAimPoint.sqrMagnitude > 0.01f)
             {
                 targetAim = _playerController.CurrentAimPoint;
+                gotAim = true;
+            }
+
+            if (!gotAim)
+            {
+                Vector2 mouseScreenPos = Vector2.zero;
+#if ENABLE_INPUT_SYSTEM
+                var mouse = UnityEngine.InputSystem.Mouse.current;
+                if (mouse != null) mouseScreenPos = mouse.position.ReadValue();
+#else
+                mouseScreenPos = Input.mousePosition;
+#endif
+
+                var cam = Camera.main;
+                if (mouseScreenPos.sqrMagnitude > 0.01f && cam != null)
+                {
+                    Ray ray = cam.ScreenPointToRay(mouseScreenPos);
+                    Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+                    if (groundPlane.Raycast(ray, out float enter) && enter > 0f)
+                    {
+                        targetAim = ray.GetPoint(enter);
+                        gotAim = true;
+                    }
+                }
+            }
+
+            // Clamp aim coordinates strictly inside the circular arena floor
+            Vector2 horizAim = new Vector2(targetAim.x, targetAim.z);
+            float maxAimRadius = 18.2f;
+            if (horizAim.sqrMagnitude > maxAimRadius * maxAimRadius)
+            {
+                horizAim = horizAim.normalized * maxAimRadius;
+                targetAim.x = horizAim.x;
+                targetAim.z = horizAim.y;
             }
 
             targetAim.y = _groundYOffset;

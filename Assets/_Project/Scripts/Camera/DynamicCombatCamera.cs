@@ -41,12 +41,24 @@ namespace DexHigh.CombatCamera
                 var ai = GameObject.FindWithTag("Enemy");
                 if (ai != null) _aiTransform = ai.transform;
             }
+
+            var fader = GetComponent<CameraObstructionFader>();
+            if (fader != null && (_playerTransform != null || _aiTransform != null))
+            {
+                fader.SetTargets(_playerTransform, _aiTransform);
+            }
         }
 
         public void SetTargets(Transform player, Transform ai)
         {
             _playerTransform = player;
             _aiTransform = ai;
+
+            var fader = GetComponent<CameraObstructionFader>();
+            if (fader != null)
+            {
+                fader.SetTargets(player, ai);
+            }
         }
 
         public void TriggerScreenShake(float magnitude = 0.35f, float duration = 0.25f)

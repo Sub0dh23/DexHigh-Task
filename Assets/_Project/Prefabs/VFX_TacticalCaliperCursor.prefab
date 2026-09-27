@@ -58,7 +58,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: a630feb8391e63342955844290669f8b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -79,10 +79,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 25
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: ab30560633b7d34e689692410ea16e54, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.15, g: 0.95, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -149,7 +149,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: a630feb8391e63342955844290669f8b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -170,10 +170,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 25
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 4b528acc3f8d3688b9635931eb0b78af, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.15, g: 0.95, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -240,7 +240,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: a630feb8391e63342955844290669f8b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -261,10 +261,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 25
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: bccf6a5c561c9143c9716f6a9e8c3ff8, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.15, g: 0.95, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -331,7 +331,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: a630feb8391e63342955844290669f8b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -352,10 +352,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 25
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: e1f87b6abef15d1abb0fbecf651ecc96, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.15, g: 0.95, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -390,8 +390,8 @@ Transform:
   m_GameObject: {fileID: 9073334026223927423}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.06, z: 0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_LocalPosition: {x: 0, y: 0.15, z: 0}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8174755880471111363}
@@ -413,21 +413,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DexHigh.UI.CircularImpactCursor
   _playerController: {fileID: 0}
-  _groundYOffset: 0.06
-  _smoothFollowSpeed: 28
-  _defaultScale: 1.2
+  _groundYOffset: 0.1
+  _smoothFollowSpeed: 35
+  _defaultScale: 0.52
   _outerTicksRenderer: {fileID: 2701083079840549419}
   _midChevronsRenderer: {fileID: 4877217163446399371}
   _innerConcentrationRenderer: {fileID: 7040727188539025731}
   _centerFocalRenderer: {fileID: 8826838182522745037}
-  _outerRotationSpeed: -12
-  _midRotationSpeed: 16
+  _outerRotationSpeed: -15
+  _midRotationSpeed: 20
   _breathingFrequency: 2.4
-  _breathingAmplitude: 0.05
-  _concentrationLockRadius: 1.1
-  _neutralColor: {r: 1, g: 0.55, b: 0.12, a: 0.9}
-  _lockedColor: {r: 1, g: 0.18, b: 0.08, a: 1}
-  _chargingColor: {r: 1, g: 0.85, b: 0.25, a: 1}
+  _breathingAmplitude: 0.06
+  _concentrationLockRadius: 2.4
+  _neutralColor: {r: 0.15, g: 0.95, b: 1, a: 1}
+  _lockedColor: {r: 1, g: 0.2, b: 0.1, a: 1}
+  _chargingColor: {r: 1, g: 0.9, b: 0.25, a: 1}
   _targetLayers:
     serializedVersion: 2
     m_Bits: 4294967295

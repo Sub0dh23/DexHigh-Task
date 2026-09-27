@@ -56,13 +56,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2.2
-  m_Radius: 1.1
+  m_Height: 2.6
+  m_Radius: 1.3
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1.1, z: 0}
+  m_Center: {x: 0, y: 1.3, z: 0}
 --- !u!114 &5080561367208186078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,7 +116,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ab5b8759d43697941a57beb9800cc0d2, type: 2}
   - {fileID: 11400000, guid: 8205486e1af49d63a822263323b765f3, type: 2}
   _mouthTransform: {fileID: 6649066978047565720}
-  _tailTransform: {fileID: 3739358649651644054}
+  _tailTransform: {fileID: 522393623473171127}
   _groundIndicatorAnchor: {fileID: 0}
   _motor: {fileID: 0}
   _health: {fileID: 0}
@@ -226,10 +226,6 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 6f40b9fa5e63d9c3b95d53f883b46bc4, type: 2}
-    - target: {fileID: 5866666021909216657, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
-      propertyPath: m_CullingMode
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8573838873104305173, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -244,9 +240,9 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
   m_PrefabInstance: {fileID: 184896834223415103}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &3739358649651644054 stripped
+--- !u!4 &522393623473171127 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: -5659832510226474583, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
+  m_CorrespondingSourceObject: {fileID: 409555486153061768, guid: 1a0d11fc3565c8d0b903eda9f9ff9fdb, type: 3}
   m_PrefabInstance: {fileID: 184896834223415103}
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &6051279998855914158 stripped

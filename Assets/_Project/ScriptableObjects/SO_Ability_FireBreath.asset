@@ -21,6 +21,8 @@ MonoBehaviour:
   _cooldown: 4
   _castDuration: 1.4
   _effectiveRange: 8.5
+  _impactRadius: 3.5
+  _outerImpactRadius: 8
   _minRange: 0
   _knockbackForce: 4
   _animationTrigger: FireBreath

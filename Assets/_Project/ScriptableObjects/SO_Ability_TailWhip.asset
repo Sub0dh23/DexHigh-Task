@@ -16,11 +16,13 @@ MonoBehaviour:
   _abilityName: Tail Whip
   _description: Powerful close-range 180 sweep with high knockback.
   _icon: {fileID: 21300000, guid: bdf88737b74a5757dac5940e60978060, type: 3}
-  _defaultHotkey: 118
+  _defaultHotkey: 119
   _baseDamage: 25
   _cooldown: 2.5
   _castDuration: 0.5
   _effectiveRange: 3.8
+  _impactRadius: 3.5
+  _outerImpactRadius: 8
   _minRange: 0
   _knockbackForce: 9
   _animationTrigger: TailWhip

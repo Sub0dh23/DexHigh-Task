@@ -21,7 +21,7 @@ MonoBehaviour:
   _baseDamage: 55
   _cooldown: 8
   _castDuration: 2
-  _effectiveRange: 22
+  _effectiveRange: 16
   _impactRadius: 3.5
   _outerImpactRadius: 8
   _minRange: 4

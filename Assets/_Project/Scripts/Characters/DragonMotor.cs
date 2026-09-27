@@ -99,6 +99,13 @@ namespace DexHigh.Characters
             _speedMultiplier = Mathf.Max(0f, multiplier);
         }
 
+        public float BaseFlightAltitude => _baseFlightAltitude;
+
+        public void RestoreBaseFlightAltitude()
+        {
+            _targetFlightAltitude = _baseFlightAltitude;
+        }
+
         public void SetFlightAltitude(float altitude)
         {
             _targetFlightAltitude = altitude;
@@ -118,8 +125,8 @@ namespace DexHigh.Characters
             _moveDirection = Vector3.zero;
             _knockbackVelocity = Vector3.zero;
             _verticalVelocity = 0f;
-            _targetFlightAltitude = 0f;
-            _currentFlightAltitude = 0f;
+            _targetFlightAltitude = _baseFlightAltitude;
+            _currentFlightAltitude = _baseFlightAltitude;
             _speedMultiplier = 1f;
             _isMovementLocked = false;
             _isRotationLocked = false;
@@ -153,11 +160,11 @@ namespace DexHigh.Characters
             }
 
             // Altitude adjustment for flight
-            _currentFlightAltitude = Mathf.MoveTowards(_currentFlightAltitude, _targetFlightAltitude, _flightAscendSpeed * Time.deltaTime);
-
-            if (_targetFlightAltitude > 0.01f || _currentFlightAltitude > 0.01f)
+            if (_targetFlightAltitude > 0.01f)
             {
-                _verticalVelocity = (_targetFlightAltitude - _currentFlightAltitude) * _flightAscendSpeed;
+                float targetY = _targetFlightAltitude;
+                float heightDiff = targetY - transform.position.y;
+                _verticalVelocity = Mathf.Clamp(heightDiff * _flightAscendSpeed, -12f, _flightAscendSpeed);
             }
             else
             {
@@ -173,6 +180,42 @@ namespace DexHigh.Characters
 
             finalMove.y = _verticalVelocity;
             _characterController.Move(finalMove * Time.deltaTime);
+
+            // Safeguards: Prevent dragons from ever falling through the floor or leaving the arena
+            Vector3 pos = transform.position;
+
+            // 1. Minimum floor altitude clamp (floor is at Y = 0)
+            float minFloorY = 0.2f;
+            if (pos.y < minFloorY)
+            {
+                pos.y = minFloorY;
+                _verticalVelocity = Mathf.Max(0f, _verticalVelocity);
+                if (_targetFlightAltitude <= 0.01f)
+                {
+                    _targetFlightAltitude = _baseFlightAltitude;
+                }
+            }
+
+            // 2. Maximum flight altitude clamp (prevents stepping onto bleachers or launching into sky)
+            float maxAllowedY = Mathf.Max(_targetFlightAltitude + 1.5f, 3.2f);
+            if (pos.y > maxAllowedY)
+            {
+                pos.y = maxAllowedY;
+                _verticalVelocity = Mathf.Min(0f, _verticalVelocity);
+            }
+
+            // 3. Circular arena boundary clamp (radius 18.5m keeps combat inside sand pit)
+            float maxArenaRadius = 18.5f;
+            Vector2 horiz = new Vector2(pos.x, pos.z);
+            if (horiz.sqrMagnitude > maxArenaRadius * maxArenaRadius)
+            {
+                horiz = horiz.normalized * maxArenaRadius;
+                pos.x = horiz.x;
+                pos.z = horiz.y;
+                _knockbackVelocity = Vector3.zero;
+            }
+
+            transform.position = pos;
         }
     }
 }

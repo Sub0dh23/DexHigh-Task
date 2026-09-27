@@ -233,11 +233,24 @@ namespace DexHigh.Combat
             Vector3 slamPosition = transform.position + Vector3.ClampMagnitude(aimOffset, maxRange);
             slamPosition.y = 0f;
 
-            // Visually pin the combat cursor to the exact target coordinates throughout the dive
-            var impactCursor = FindFirstObjectByType<DexHigh.UI.CircularImpactCursor>();
-            if (impactCursor != null)
+            // Clamp slam target safely inside circular arena radius
+            Vector2 slamHoriz = new Vector2(slamPosition.x, slamPosition.z);
+            float maxSlamRadius = 18.5f;
+            if (slamHoriz.sqrMagnitude > maxSlamRadius * maxSlamRadius)
             {
-                impactCursor.PinToPosition(slamPosition);
+                slamHoriz = slamHoriz.normalized * maxSlamRadius;
+                slamPosition = new Vector3(slamHoriz.x, 0f, slamHoriz.y);
+            }
+
+            // Visually pin the combat cursor to the exact target coordinates throughout the dive (Player only)
+            DexHigh.UI.CircularImpactCursor impactCursor = null;
+            if (GetComponent<DexHigh.Characters.PlayerDragonController>() != null)
+            {
+                impactCursor = FindFirstObjectByType<DexHigh.UI.CircularImpactCursor>();
+                if (impactCursor != null)
+                {
+                    impactCursor.PinToPosition(slamPosition);
+                }
             }
 
             // Spawn target indicator firmly at the locked impact coordinates
@@ -287,8 +300,11 @@ namespace DexHigh.Combat
                 yield return null;
             }
 
-            transform.position = slamPosition;
-            _motor.SetFlightAltitude(0f);
+            var cc = _motor.CharacterController;
+            if (cc != null) cc.enabled = false;
+            transform.position = new Vector3(slamPosition.x, 0.2f, slamPosition.z);
+            if (cc != null) cc.enabled = true;
+
             _health.SetInvulnerable(false);
 
             if (indicator != null)
@@ -318,6 +334,9 @@ namespace DexHigh.Combat
             OnAbilityImpact?.Invoke(ability, slamPosition, outerRadius);
 
             yield return new WaitForSeconds(0.4f);
+
+            // Re-ascend back to hovering flight altitude
+            _motor.RestoreBaseFlightAltitude();
 
             // Release pinned combat cursor back to live mouse tracking once dive is fully completed
             if (impactCursor != null)

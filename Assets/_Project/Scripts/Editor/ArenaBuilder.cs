@@ -201,8 +201,24 @@ namespace DexHigh.Editor
                 AssetDatabase.CreateAsset(vfxMat, vfxMatPath);
             }
             vfxMat.name = "M_VFX_Additive";
+            vfxMat.SetFloat("_Surface", 1f); // Transparent
+            vfxMat.SetFloat("_Blend", 1f); // Additive
+            vfxMat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
+            vfxMat.SetFloat("_DstBlend", 10f); // OneMinusSrcAlpha
+            vfxMat.SetFloat("_DstBlendAlpha", 10f);
+            vfxMat.SetFloat("_ZWrite", 0f);
+            vfxMat.renderQueue = 3000;
+            vfxMat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            vfxMat.SetOverrideTag("RenderType", "Transparent");
+            Texture2D flameTex = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/_Project/Art/VFX/T_Particle_FlameTongue.png");
+            if (flameTex != null)
+            {
+                vfxMat.SetTexture("_BaseMap", flameTex);
+                if (vfxMat.HasProperty("_MainTex")) vfxMat.SetTexture("_MainTex", flameTex);
+            }
             if (vfxMat.HasProperty("_BaseColor")) vfxMat.SetColor("_BaseColor", new Color(1f, 0.6f, 0.2f, 1f));
             if (vfxMat.HasProperty("_Color")) vfxMat.SetColor("_Color", new Color(1f, 0.6f, 0.2f, 1f));
+            EditorUtility.SetDirty(vfxMat);
             set.vfxMat = vfxMat;
 
             return set;
@@ -220,114 +236,141 @@ namespace DexHigh.Editor
         {
             VFXSet set = new VFXSet();
 
-            // 1. Fire Breath VFX
+            // Load existing handcrafted VFX prefabs first
             string firePath = $"{VFXDir}/VFX_FireBreath.prefab";
-            GameObject fireObj = new GameObject("VFX_FireBreath");
-            var firePs = fireObj.AddComponent<ParticleSystem>();
-            var fireMain = firePs.main;
-            fireMain.startLifetime = 0.8f;
-            fireMain.startSpeed = 12f;
-            fireMain.startSize = new ParticleSystem.MinMaxCurve(0.4f, 1.2f);
-            fireMain.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.8f, 0.2f), new Color(1f, 0.2f, 0.05f));
-            fireMain.simulationSpace = ParticleSystemSimulationSpace.World;
+            set.fireBreathPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(firePath);
 
-            var fireEmission = firePs.emission;
-            fireEmission.rateOverTime = 75f;
+            string tailPath = $"{VFXDir}/VFX_TailWhip.prefab";
+            set.tailWhipPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(tailPath);
 
-            var fireShape = firePs.shape;
-            fireShape.shapeType = ParticleSystemShapeType.Cone;
-            fireShape.angle = 18f;
-            fireShape.radius = 0.2f;
+            string indicatorPath = $"{VFXDir}/VFX_DiveTargetIndicator.prefab";
+            set.targetIndicatorPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(indicatorPath);
 
-            var fireColorBySpeed = firePs.colorOverLifetime;
-            fireColorBySpeed.enabled = true;
-            Gradient fireGrad = new Gradient();
-            fireGrad.SetKeys(
-                new GradientColorKey[] { new GradientColorKey(new Color(1f, 0.9f, 0.3f), 0f), new GradientColorKey(new Color(1f, 0.3f, 0f), 0.6f), new GradientColorKey(new Color(0.2f, 0.2f, 0.2f), 1f) },
-                new GradientAlphaKey[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0.8f, 0.7f), new GradientAlphaKey(0f, 1f) }
-            );
-            fireColorBySpeed.color = fireGrad;
+            string divePath = $"{VFXDir}/VFX_DiveImpactSlam.prefab";
+            set.diveImpactPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(divePath);
 
-            var fireRen = fireObj.GetComponent<ParticleSystemRenderer>();
-            if (vfxMat != null) fireRen.material = vfxMat;
+            if (set.fireBreathPrefab != null && set.tailWhipPrefab != null &&
+                set.targetIndicatorPrefab != null && set.diveImpactPrefab != null)
+            {
+                return set;
+            }
 
-            set.fireBreathPrefab = PrefabUtility.SaveAsPrefabAsset(fireObj, firePath);
-            Object.DestroyImmediate(fireObj);
+            // Fallback generation only if prefabs do not exist
+            if (set.fireBreathPrefab == null)
+            {
+                GameObject fireObj = new GameObject("VFX_FireBreath");
+                var firePs = fireObj.AddComponent<ParticleSystem>();
+                var fireMain = firePs.main;
+                fireMain.startLifetime = 0.8f;
+                fireMain.startSpeed = 12f;
+                fireMain.startSize = new ParticleSystem.MinMaxCurve(0.4f, 1.2f);
+                fireMain.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.8f, 0.2f), new Color(1f, 0.2f, 0.05f));
+                fireMain.simulationSpace = ParticleSystemSimulationSpace.World;
+
+                var fireEmission = firePs.emission;
+                fireEmission.rateOverTime = 75f;
+
+                var fireShape = firePs.shape;
+                fireShape.shapeType = ParticleSystemShapeType.Cone;
+                fireShape.angle = 18f;
+                fireShape.radius = 0.2f;
+
+                var fireColorBySpeed = firePs.colorOverLifetime;
+                fireColorBySpeed.enabled = true;
+                Gradient fireGrad = new Gradient();
+                fireGrad.SetKeys(
+                    new GradientColorKey[] { new GradientColorKey(new Color(1f, 0.9f, 0.3f), 0f), new GradientColorKey(new Color(1f, 0.3f, 0f), 0.6f), new GradientColorKey(new Color(0.2f, 0.2f, 0.2f), 1f) },
+                    new GradientAlphaKey[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0.8f, 0.7f), new GradientAlphaKey(0f, 1f) }
+                );
+                fireColorBySpeed.color = fireGrad;
+
+                var fireRen = fireObj.GetComponent<ParticleSystemRenderer>();
+                if (vfxMat != null) fireRen.material = vfxMat;
+
+                set.fireBreathPrefab = PrefabUtility.SaveAsPrefabAsset(fireObj, firePath);
+                Object.DestroyImmediate(fireObj);
+            }
 
             // 2. Tail Whip VFX
-            string tailPath = $"{VFXDir}/VFX_TailWhip.prefab";
-            GameObject tailObj = new GameObject("VFX_TailWhip");
-            var tailPs = tailObj.AddComponent<ParticleSystem>();
-            var tailMain = tailPs.main;
-            tailMain.duration = 0.35f;
-            tailMain.loop = false;
-            tailMain.startLifetime = 0.4f;
-            tailMain.startSpeed = 8f;
-            tailMain.startSize = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
-            tailMain.startColor = new Color(1f, 0.9f, 0.5f, 0.9f);
+            if (set.tailWhipPrefab == null)
+            {
+                GameObject tailObj = new GameObject("VFX_TailWhip");
+                var tailPs = tailObj.AddComponent<ParticleSystem>();
+                var tailMain = tailPs.main;
+                tailMain.duration = 0.35f;
+                tailMain.loop = false;
+                tailMain.startLifetime = 0.4f;
+                tailMain.startSpeed = 8f;
+                tailMain.startSize = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
+                tailMain.startColor = new Color(1f, 0.9f, 0.5f, 0.9f);
 
-            var tailEmission = tailPs.emission;
-            tailEmission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 40) });
+                var tailEmission = tailPs.emission;
+                tailEmission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 40) });
 
-            var tailShape = tailPs.shape;
-            tailShape.shapeType = ParticleSystemShapeType.Donut;
-            tailShape.radius = 2.5f;
-            tailShape.donutRadius = 0.5f;
-            tailShape.arc = 180f;
+                var tailShape = tailPs.shape;
+                tailShape.shapeType = ParticleSystemShapeType.Donut;
+                tailShape.radius = 2.5f;
+                tailShape.donutRadius = 0.5f;
+                tailShape.arc = 180f;
 
-            var tailRen = tailObj.GetComponent<ParticleSystemRenderer>();
-            if (vfxMat != null) tailRen.material = vfxMat;
+                var tailRen = tailObj.GetComponent<ParticleSystemRenderer>();
+                if (vfxMat != null) tailRen.material = vfxMat;
 
-            set.tailWhipPrefab = PrefabUtility.SaveAsPrefabAsset(tailObj, tailPath);
-            Object.DestroyImmediate(tailObj);
+                set.tailWhipPrefab = PrefabUtility.SaveAsPrefabAsset(tailObj, tailPath);
+                Object.DestroyImmediate(tailObj);
+            }
 
             // 3. Target Indicator Decal
-            string indicatorPath = $"{VFXDir}/VFX_DiveTargetIndicator.prefab";
-            GameObject indObj = new GameObject("VFX_DiveTargetIndicator");
-            var indPs = indObj.AddComponent<ParticleSystem>();
-            var indMain = indPs.main;
-            indMain.startLifetime = 0.6f;
-            indMain.startSpeed = 0f;
-            indMain.startSize = 5f;
-            indMain.startColor = new Color(1f, 0.2f, 0.1f, 0.6f);
+            if (set.targetIndicatorPrefab == null)
+            {
+                GameObject indObj = new GameObject("VFX_DiveTargetIndicator");
+                var indPs = indObj.AddComponent<ParticleSystem>();
+                var indMain = indPs.main;
+                indMain.startLifetime = 0.6f;
+                indMain.startSpeed = 0f;
+                indMain.startSize = 5f;
+                indMain.startColor = new Color(1f, 0.2f, 0.1f, 0.6f);
 
-            var indEmission = indPs.emission;
-            indEmission.rateOverTime = 15f;
+                var indEmission = indPs.emission;
+                indEmission.rateOverTime = 15f;
 
-            var indShape = indPs.shape;
-            indShape.shapeType = ParticleSystemShapeType.Circle;
-            indShape.radius = 2.5f;
+                var indShape = indPs.shape;
+                indShape.shapeType = ParticleSystemShapeType.Circle;
+                indShape.radius = 2.5f;
 
-            var indRen = indObj.GetComponent<ParticleSystemRenderer>();
-            if (vfxMat != null) indRen.material = vfxMat;
+                var indRen = indObj.GetComponent<ParticleSystemRenderer>();
+                if (vfxMat != null) indRen.material = vfxMat;
 
-            set.targetIndicatorPrefab = PrefabUtility.SaveAsPrefabAsset(indObj, indicatorPath);
-            Object.DestroyImmediate(indObj);
+                set.targetIndicatorPrefab = PrefabUtility.SaveAsPrefabAsset(indObj, indicatorPath);
+                Object.DestroyImmediate(indObj);
+            }
 
             // 4. Dive Impact Slam VFX
-            string divePath = $"{VFXDir}/VFX_DiveImpactSlam.prefab";
-            GameObject diveObj = new GameObject("VFX_DiveImpactSlam");
-            var divePs = diveObj.AddComponent<ParticleSystem>();
-            var diveMain = divePs.main;
-            diveMain.duration = 0.5f;
-            diveMain.loop = false;
-            diveMain.startLifetime = 0.6f;
-            diveMain.startSpeed = 16f;
-            diveMain.startSize = new ParticleSystem.MinMaxCurve(0.5f, 1.8f);
-            diveMain.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.6f, 0.1f), new Color(1f, 0.1f, 0.05f));
+            if (set.diveImpactPrefab == null)
+            {
+                GameObject diveObj = new GameObject("VFX_DiveImpactSlam");
+                var divePs = diveObj.AddComponent<ParticleSystem>();
+                var diveMain = divePs.main;
+                diveMain.duration = 0.5f;
+                diveMain.loop = false;
+                diveMain.startLifetime = 0.6f;
+                diveMain.startSpeed = 16f;
+                diveMain.startSize = new ParticleSystem.MinMaxCurve(0.5f, 1.8f);
+                diveMain.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.6f, 0.1f), new Color(1f, 0.1f, 0.05f));
 
-            var diveEmission = divePs.emission;
-            diveEmission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 60) });
+                var diveEmission = divePs.emission;
+                diveEmission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 60) });
 
-            var diveShape = divePs.shape;
-            diveShape.shapeType = ParticleSystemShapeType.Hemisphere;
-            diveShape.radius = 1.0f;
+                var diveShape = divePs.shape;
+                diveShape.shapeType = ParticleSystemShapeType.Hemisphere;
+                diveShape.radius = 1.0f;
 
-            var diveRen = diveObj.GetComponent<ParticleSystemRenderer>();
-            if (vfxMat != null) diveRen.material = vfxMat;
+                var diveRen = diveObj.GetComponent<ParticleSystemRenderer>();
+                if (vfxMat != null) diveRen.material = vfxMat;
 
-            set.diveImpactPrefab = PrefabUtility.SaveAsPrefabAsset(diveObj, divePath);
-            Object.DestroyImmediate(diveObj);
+                set.diveImpactPrefab = PrefabUtility.SaveAsPrefabAsset(diveObj, divePath);
+                Object.DestroyImmediate(diveObj);
+            }
 
             return set;
         }
@@ -361,7 +404,7 @@ namespace DexHigh.Editor
             SetPrivateField(fire, "_effectiveRange", 8.5f);
             SetPrivateField(fire, "_minRange", 0f);
             SetPrivateField(fire, "_knockbackForce", 4f);
-            SetPrivateField(fire, "_animationTrigger", "Attack");
+            SetPrivateField(fire, "_animationTrigger", "FireBreath");
             SetPrivateField(fire, "_vfxPrefab", vfx.fireBreathPrefab);
             EditorUtility.SetDirty(fire);
             set.fireBreath = fire;
@@ -384,7 +427,7 @@ namespace DexHigh.Editor
             SetPrivateField(tail, "_effectiveRange", 3.8f);
             SetPrivateField(tail, "_minRange", 0f);
             SetPrivateField(tail, "_knockbackForce", 9f);
-            SetPrivateField(tail, "_animationTrigger", "Attack");
+            SetPrivateField(tail, "_animationTrigger", "TailWhip");
             SetPrivateField(tail, "_vfxPrefab", vfx.tailWhipPrefab);
             EditorUtility.SetDirty(tail);
             set.tailWhip = tail;
@@ -407,7 +450,7 @@ namespace DexHigh.Editor
             SetPrivateField(fly, "_effectiveRange", 16f);
             SetPrivateField(fly, "_minRange", 4f);
             SetPrivateField(fly, "_knockbackForce", 14f);
-            SetPrivateField(fly, "_animationTrigger", "Takeoff");
+            SetPrivateField(fly, "_animationTrigger", "DiveBomb");
             SetPrivateField(fly, "_targetIndicatorPrefab", vfx.targetIndicatorPrefab);
             SetPrivateField(fly, "_impactVfxPrefab", vfx.diveImpactPrefab);
             EditorUtility.SetDirty(fly);
@@ -430,6 +473,7 @@ namespace DexHigh.Editor
             {
                 modelFbx = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/RedDragon/source/RedDragon.fbx");
             }
+            RuntimeAnimatorController animCtrl = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/_Project/Animations/Dragon_AnimatorController.controller");
 
             // 1. Player Dragon Prefab
             string playerPath = $"{PrefabDir}/Prefab_PlayerDragon.prefab";
@@ -455,7 +499,7 @@ namespace DexHigh.Editor
             SetPrivateField(playerCombat, "_abilities", pAbilities);
 
             playerRoot.AddComponent<PlayerDragonController>();
-            playerRoot.AddComponent<DragonProceduralAnimator>();
+            var playerProcAnim = playerRoot.AddComponent<DragonProceduralAnimator>();
 
             // Instantiate visual child
             if (modelFbx != null)
@@ -463,8 +507,24 @@ namespace DexHigh.Editor
                 GameObject visual = (GameObject)PrefabUtility.InstantiatePrefab(modelFbx, playerRoot.transform);
                 visual.name = "Model";
                 visual.transform.localPosition = Vector3.zero;
-                visual.transform.localRotation = Quaternion.identity;
+                visual.transform.localRotation = Quaternion.Euler(0f, 180f, 0f); // Face forward (+Z)
                 visual.transform.localScale = Vector3.one * 0.085f;
+
+                var anim = visual.GetComponent<Animator>();
+                if (anim == null) anim = visual.AddComponent<Animator>();
+                if (animCtrl != null) anim.runtimeAnimatorController = animCtrl;
+
+                Transform jaw = null;
+                Transform tail = null;
+                foreach (var t in visual.GetComponentsInChildren<Transform>())
+                {
+                    if (t.name == "jaw" || (jaw == null && t.name == "head")) jaw = t;
+                    if (t.name == "tail6" || (tail == null && t.name.StartsWith("tail"))) tail = t;
+                }
+                SetPrivateField(playerCombat, "_mouthTransform", jaw);
+                SetPrivateField(playerCombat, "_tailTransform", tail);
+                SetPrivateField(playerCombat, "_animator", anim);
+                SetPrivateField(playerProcAnim, "_animator", anim);
 
                 // Apply Player Material
                 foreach (var ren in visual.GetComponentsInChildren<Renderer>())
@@ -508,15 +568,31 @@ namespace DexHigh.Editor
             SetPrivateField(aiCombat, "_abilities", aiAbilities);
 
             aiRoot.AddComponent<AIDragonController>();
-            aiRoot.AddComponent<DragonProceduralAnimator>();
+            var aiProcAnim = aiRoot.AddComponent<DragonProceduralAnimator>();
 
             if (modelFbx != null)
             {
                 GameObject visual = (GameObject)PrefabUtility.InstantiatePrefab(modelFbx, aiRoot.transform);
                 visual.name = "Model";
                 visual.transform.localPosition = Vector3.zero;
-                visual.transform.localRotation = Quaternion.identity;
+                visual.transform.localRotation = Quaternion.Euler(0f, 180f, 0f); // Face forward (+Z)
                 visual.transform.localScale = Vector3.one * 0.085f;
+
+                var anim = visual.GetComponent<Animator>();
+                if (anim == null) anim = visual.AddComponent<Animator>();
+                if (animCtrl != null) anim.runtimeAnimatorController = animCtrl;
+
+                Transform jaw = null;
+                Transform tail = null;
+                foreach (var t in visual.GetComponentsInChildren<Transform>())
+                {
+                    if (t.name == "jaw" || (jaw == null && t.name == "head")) jaw = t;
+                    if (t.name == "tail6" || (tail == null && t.name.StartsWith("tail"))) tail = t;
+                }
+                SetPrivateField(aiCombat, "_mouthTransform", jaw);
+                SetPrivateField(aiCombat, "_tailTransform", tail);
+                SetPrivateField(aiCombat, "_animator", anim);
+                SetPrivateField(aiProcAnim, "_animator", anim);
 
                 // Apply AI Frost Material
                 foreach (var ren in visual.GetComponentsInChildren<Renderer>())
@@ -533,15 +609,19 @@ namespace DexHigh.Editor
 
         private static void BuildBattleScene(PrefabPair prefabs, MaterialSet mats)
         {
-            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             string scenePath = $"{SceneDir}/DragonArenaBattle.unity";
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            EditorSceneManager.SaveScene(scene, scenePath);
 
             // 1. Systems Root
             GameObject systemsRoot = new GameObject("Systems");
             var gameMgr = systemsRoot.AddComponent<BattleGameManager>();
             systemsRoot.AddComponent<DexHigh.Audio.AudioManager>();
 
-            // 2. Cameras Root
+            // 2. Environment, Golden Lighting, Volumetric God Rays & Atmosphere
+            DexHigh.EditorTools.ColosseumLightingBuilder.BuildAtmosphere();
+
+            // 3. Cameras Root
             GameObject camerasRoot = new GameObject("Cameras");
             GameObject camObj = new GameObject("Main Camera");
             camObj.tag = "MainCamera";
@@ -550,17 +630,14 @@ namespace DexHigh.Editor
             camObj.AddComponent<AudioListener>();
             camObj.AddComponent<UniversalAdditionalCameraData>();
             var combatCam = camObj.AddComponent<DynamicCombatCamera>();
+            var fader = camObj.AddComponent<CameraObstructionFader>();
             SetPrivateField(combatCam, "_offset", new Vector3(0f, 20f, -16f));
             SetPrivateField(combatCam, "_minHeight", 16f);
             SetPrivateField(combatCam, "_maxHeight", 28f);
             SetPrivateField(combatCam, "_minDistance", 12f);
             SetPrivateField(combatCam, "_maxDistance", 30f);
 
-            // 3. Environment, Golden Lighting, Volumetric God Rays & Atmosphere
-            DexHigh.EditorTools.ColosseumLightingBuilder.BuildAtmosphere();
-
-
-            // 5. Combatants Root
+            // 4. Combatants Root
             GameObject combatantsRoot = new GameObject("Combatants");
 
             GameObject playerInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefabs.playerPrefab, combatantsRoot.transform);
@@ -575,10 +652,29 @@ namespace DexHigh.Editor
 
             // Connect references
             combatCam.SetTargets(playerInstance.transform, aiInstance.transform);
+            fader.SetTargets(playerInstance.transform, aiInstance.transform);
             SetPrivateField(gameMgr, "_playerDragon", playerInstance.GetComponent<DragonHealth>());
             SetPrivateField(gameMgr, "_aiDragon", aiInstance.GetComponent<DragonHealth>());
             SetPrivateField(gameMgr, "_combatCamera", combatCam);
 
+            // 5. Tactical Caliper Mouse Aim Cursor (Player Attack Marker)
+            string cursorPrefabPath = $"{PrefabDir}/VFX_TacticalCaliperCursor.prefab";
+            GameObject cursorPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(cursorPrefabPath);
+            if (cursorPrefab != null)
+            {
+                GameObject cursorInstance = (GameObject)PrefabUtility.InstantiatePrefab(cursorPrefab);
+                cursorInstance.name = "VFX_TacticalCaliperCursor";
+                var impactCursor = cursorInstance.GetComponent<DexHigh.UI.CircularImpactCursor>();
+                if (impactCursor != null)
+                {
+                    SetPrivateField(impactCursor, "_playerController", playerInstance.GetComponent<PlayerDragonController>());
+                }
+            }
+
+            // 6. Combat HUD & Event System
+            DexHigh.EditorTools.BuildCombatHUD.BuildHUD();
+
+            EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, scenePath);
         }
 

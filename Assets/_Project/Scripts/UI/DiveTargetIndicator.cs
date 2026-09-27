@@ -26,8 +26,35 @@ namespace DexHigh.UI
 
         private float _elapsed = 0f;
 
+        private void Awake()
+        {
+            var reticleShader = Shader.Find("DexHigh/CombatReticle");
+            if (reticleShader == null) reticleShader = Shader.Find("DexHigh/CombatReticleAdditive");
+            if (reticleShader == null) reticleShader = Shader.Find("Sprites/Default");
+
+            foreach (var sr in GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (sr.sharedMaterial == null || sr.sharedMaterial.shader.name.Contains("2D"))
+                {
+                    if (reticleShader != null)
+                    {
+                        var mat = new Material(reticleShader);
+                        mat.SetFloat("_SrcBlend", 5f); // SrcAlpha
+                        mat.SetFloat("_DstBlend", 1f); // One (Additive)
+                        mat.SetFloat("_Intensity", 1.8f);
+                        mat.renderQueue = 3200;
+                        sr.sharedMaterial = mat;
+                    }
+                }
+                sr.sortingOrder = 25;
+            }
+        }
+
         private void Start()
         {
+            Vector3 pos = transform.position;
+            pos.y = 0.12f;
+            transform.position = pos;
             transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             transform.localScale = Vector3.one * _scale;
             ApplyScaleAndColor(0f);

@@ -220,7 +220,7 @@ namespace DexHigh.AI
         {
             if (_navAgent != null && _navAgent.isOnNavMesh)
             {
-                _navAgent.transform.position = transform.position;
+                _navAgent.nextPosition = transform.position;
                 _navAgent.SetDestination(destination);
 
                 if (_navAgent.hasPath && _navAgent.path.corners.Length > 1)

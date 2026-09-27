@@ -33,7 +33,7 @@ namespace DexHigh.EditorTools
         public static void BuildAtmosphere()
         {
             var activeScene = EditorSceneManager.GetActiveScene();
-            if (activeScene.path != ScenePath)
+            if (activeScene.path != ScenePath && !string.IsNullOrEmpty(activeScene.path) && File.Exists(ScenePath))
             {
                 EditorSceneManager.OpenScene(ScenePath);
             }
@@ -73,8 +73,6 @@ namespace DexHigh.EditorTools
             EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
             Debug.Log("<color=#2ECC71><b>[Colosseum]</b> Successfully built Colosseum Architecture, Golden Hour Lighting, God Rays, and Atmospheric Fog!</color>");
-
-            CaptureScreenshots();
         }
 
         [MenuItem("DexHigh/Capture Colosseum Screenshots")]
@@ -415,22 +413,79 @@ namespace DexHigh.EditorTools
             // 1. Arena Sand Floor (Radius 21m, Diameter 42m)
             float arenaRadius = 21f;
             var floor = envRoot.transform.Find("Arena_Floor");
-            if (floor != null)
+            if (floor == null)
             {
-                floor.localPosition = new Vector3(0f, -0.25f, 0f);
-                floor.localScale = new Vector3(arenaRadius * 2f, 0.3f, arenaRadius * 2f);
-                var ren = floor.GetComponent<Renderer>();
-                if (ren != null) ren.sharedMaterial = mats.sandFloor;
+                var floorObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                floorObj.name = "Arena_Floor";
+                floorObj.transform.parent = envRoot.transform;
+                floor = floorObj.transform;
+            }
+            floor.localPosition = new Vector3(0f, -0.25f, 0f);
+            floor.localScale = new Vector3(arenaRadius * 2f, 0.25f, arenaRadius * 2f);
+            var ren = floor.GetComponent<Renderer>();
+            if (ren != null) ren.sharedMaterial = mats.sandFloor;
+
+            // Replace default capsule collider with a flat box collider matching top surface at Y = 0.00
+            var oldFloorCol = floor.GetComponent<Collider>();
+            if (oldFloorCol != null && !(oldFloorCol is BoxCollider))
+            {
+                Object.DestroyImmediate(oldFloorCol);
+            }
+            var floorBox = floor.GetComponent<BoxCollider>();
+            if (floorBox == null) floorBox = floor.gameObject.AddComponent<BoxCollider>();
+            floorBox.size = new Vector3(1f, 2f, 1f);
+            floorBox.center = Vector3.zero;
+
+            // Ensure NavMeshSurface on floor
+            var navSurface = floor.GetComponent<NavMeshSurface>();
+            if (navSurface == null)
+            {
+                navSurface = floor.gameObject.AddComponent<NavMeshSurface>();
+                navSurface.collectObjects = CollectObjects.All;
+                navSurface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
             }
 
             // 2. Arena Stone Trim
             var trim = envRoot.transform.Find("Arena_Trim");
-            if (trim != null)
+            if (trim == null)
             {
-                trim.localPosition = new Vector3(0f, -0.28f, 0f);
-                trim.localScale = new Vector3(arenaRadius * 2f + 2.5f, 0.25f, arenaRadius * 2f + 2.5f);
-                var ren = trim.GetComponent<Renderer>();
-                if (ren != null) ren.sharedMaterial = mats.stoneTrim;
+                var trimObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                trimObj.name = "Arena_Trim";
+                trimObj.transform.parent = envRoot.transform;
+                trim = trimObj.transform;
+            }
+            trim.localPosition = new Vector3(0f, -0.28f, 0f);
+            trim.localScale = new Vector3(arenaRadius * 2f + 2.5f, 0.25f, arenaRadius * 2f + 2.5f);
+            var trimRen = trim.GetComponent<Renderer>();
+            if (trimRen != null) trimRen.sharedMaterial = mats.stoneTrim;
+
+            // Trim is visual only: remove collider to prevent collision interference
+            var trimCol = trim.GetComponent<Collider>();
+            if (trimCol != null) Object.DestroyImmediate(trimCol);
+
+            // 3. Colosseum Boundary Colliders (Invisible ring of 32 box colliders around radius 20.6m)
+            var existingBounds = envRoot.transform.Find("Colosseum_Boundary_Collider");
+            if (existingBounds != null)
+            {
+                Object.DestroyImmediate(existingBounds.gameObject);
+            }
+            GameObject boundaryRoot = new GameObject("Colosseum_Boundary_Collider");
+            boundaryRoot.transform.parent = envRoot.transform;
+            boundaryRoot.transform.localPosition = Vector3.zero;
+
+            int boundarySegments = 32;
+            float boundaryRadius = 20.6f;
+            float segmentWidth = (2f * Mathf.PI * boundaryRadius / boundarySegments) + 0.3f;
+            for (int b = 0; b < boundarySegments; b++)
+            {
+                float angle = (b * Mathf.PI * 2f) / boundarySegments;
+                Vector3 bPos = new Vector3(Mathf.Cos(angle) * boundaryRadius, 7.0f, Mathf.Sin(angle) * boundaryRadius);
+                GameObject seg = new GameObject($"Boundary_Wall_{b}");
+                seg.transform.parent = boundaryRoot.transform;
+                seg.transform.position = bPos;
+                seg.transform.rotation = Quaternion.Euler(0f, -angle * Mathf.Rad2Deg + 90f, 0f);
+                var boxCol = seg.AddComponent<BoxCollider>();
+                boxCol.size = new Vector3(segmentWidth, 16f, 1.5f);
             }
 
             // 3. Colosseum Architecture Root
@@ -610,53 +665,8 @@ namespace DexHigh.EditorTools
             var oldDust = lightingRoot.transform.Find("Atmospheric_DustMotes");
             if (oldDust != null) Object.DestroyImmediate(oldDust.gameObject);
 
-            // 1. Dedicated Volumetric Sun Shafts (God Rays)
-            // 3 angled translucent sunbeams piercing from the upper arches into the arena center
-            GameObject shaftsRoot = new GameObject("Atmospheric_SunShafts");
-            shaftsRoot.transform.parent = lightingRoot.transform;
-
-            Vector3[] shaftOrigins = new Vector3[]
-            {
-                new Vector3(-18f, 17f, 16f), // Main dramatic sun shaft
-                new Vector3(-12f, 18f, 21f), // Secondary sun shaft
-                new Vector3(-22f, 16f, 10f)  // Third flank sun shaft
-            };
-
-            Vector3[] shaftTargets = new Vector3[]
-            {
-                new Vector3(2f, 0f, -1f),
-                new Vector3(8f, 0f, 4f),
-                new Vector3(-5f, 0f, -6f)
-            };
-
-            float[] shaftWidths = new float[] { 14f, 10f, 9f };
-
-            for (int k = 0; k < shaftOrigins.Length; k++)
-            {
-                Vector3 origin = shaftOrigins[k];
-                Vector3 target = shaftTargets[k];
-                Vector3 dir = (target - origin).normalized;
-                float dist = Vector3.Distance(origin, target);
-
-                GameObject shaftGO = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                shaftGO.name = $"SunShaft_Beam_{k + 1}";
-                shaftGO.transform.parent = shaftsRoot.transform;
-                shaftGO.transform.position = origin + dir * (dist * 0.5f);
-                shaftGO.transform.rotation = Quaternion.LookRotation(dir) * Quaternion.Euler(90f, 0f, 0f);
-                shaftGO.transform.localScale = new Vector3(shaftWidths[k], dist * 0.5f, shaftWidths[k]);
-
-                // Destroy collider
-                var col = shaftGO.GetComponent<Collider>();
-                if (col != null) Object.DestroyImmediate(col);
-
-                var ren = shaftGO.GetComponent<Renderer>();
-                if (ren != null)
-                {
-                    ren.sharedMaterial = mats.sunShaft;
-                    ren.shadowCastingMode = ShadowCastingMode.Off;
-                    ren.receiveShadows = false;
-                }
-            }
+            // 1. Atmospheric Sun Shafts: Removed cylinder primitive meshes to prevent hard rectangular ground-clipping artifacts.
+            // Atmospheric depth is handled by URP Directional Light, Golden Ambient Fog, and Golden Dust Motes.
 
             // 2. Suspended Golden Dust Motes (Particle System)
             GameObject dustGO = new GameObject("Atmospheric_DustMotes");
@@ -706,10 +716,13 @@ namespace DexHigh.EditorTools
             if (floor != null)
             {
                 var navSurface = floor.GetComponent<NavMeshSurface>();
-                if (navSurface != null)
+                if (navSurface == null)
                 {
-                    navSurface.BuildNavMesh();
+                    navSurface = floor.AddComponent<NavMeshSurface>();
+                    navSurface.collectObjects = CollectObjects.All;
+                    navSurface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
                 }
+                navSurface.BuildNavMesh();
             }
         }
     }
