@@ -158,6 +158,9 @@ namespace DexHigh.Combat
                 vfx = Instantiate(ability.VfxPrefab, spawnPoint.position, flatRot, transform);
             }
 
+            // Play Fire Breath SFX
+            PlayAbilitySound(ability.CastAudioClip, AbilitySoundType.FireBreath);
+
             float duration = ability.CastDuration;
             float tickInterval = 0.2f;
             float elapsed = 0f;
@@ -206,6 +209,9 @@ namespace DexHigh.Combat
             {
                 Instantiate(ability.VfxPrefab, originPos, transform.rotation);
             }
+
+            // Play Tail Whip SFX
+            PlayAbilitySound(ability.CastAudioClip, AbilitySoundType.TailWhip);
 
             // Sweep melee area (around and behind/flank)
             ApplyAreaDamage(originPos, ability.EffectiveRange, ability.BaseDamage, AbilityType.TailWhip, ability.KnockbackForce, transform.forward);
@@ -317,6 +323,9 @@ namespace DexHigh.Combat
             {
                 Instantiate(ability.ImpactVfxPrefab, slamPosition, Quaternion.identity);
             }
+
+            // Play Heavy Impact SFX on dive slam
+            PlayAbilitySound(ability.ImpactAudioClip, AbilitySoundType.FlyImpact);
 
             // Heavy screen shake on impact
             var cam = FindFirstObjectByType<DexHigh.CombatCamera.DynamicCombatCamera>();
@@ -569,6 +578,43 @@ namespace DexHigh.Combat
                     OnCooldownUpdated?.Invoke(i, 0f, _abilities[i].Cooldown);
                 }
             }
+        }
+
+        private void PlayAbilitySound(AudioClip clip, AbilitySoundType type)
+        {
+            if (DexHigh.Audio.AudioManager.Instance != null)
+            {
+                if (clip != null)
+                {
+                    DexHigh.Audio.AudioManager.Instance.PlaySfx(clip, 0.95f);
+                }
+                else
+                {
+                    switch (type)
+                    {
+                        case AbilitySoundType.FireBreath:
+                            DexHigh.Audio.AudioManager.Instance.PlayFireBreath();
+                            break;
+                        case AbilitySoundType.TailWhip:
+                            DexHigh.Audio.AudioManager.Instance.PlayTailWhip();
+                            break;
+                        case AbilitySoundType.FlyImpact:
+                            DexHigh.Audio.AudioManager.Instance.PlayFlyImpact();
+                            break;
+                    }
+                }
+            }
+            else if (clip != null)
+            {
+                AudioSource.PlayClipAtPoint(clip, transform.position, 0.95f);
+            }
+        }
+
+        private enum AbilitySoundType
+        {
+            FireBreath,
+            TailWhip,
+            FlyImpact
         }
     }
 }

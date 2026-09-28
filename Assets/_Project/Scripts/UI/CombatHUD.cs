@@ -154,6 +154,31 @@ namespace DexHigh.UI
         private void Update()
         {
             UpdateEaseBars();
+            CheckEscapeKey();
+        }
+
+        private void CheckEscapeKey()
+        {
+#if ENABLE_INPUT_SYSTEM
+            if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                HandleEscapeKey();
+            }
+#else
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                HandleEscapeKey();
+            }
+#endif
+        }
+
+        private void HandleEscapeKey()
+        {
+            if (Core.BattleGameManager.Instance != null &&
+                Core.BattleGameManager.Instance.CurrentState != Core.BattleState.MainMenu)
+            {
+                OnLeaveClicked();
+            }
         }
 
         private void UpdateEaseBars()
@@ -346,6 +371,15 @@ namespace DexHigh.UI
 
         public void ShowWinnerScreen(string winnerName, bool isPlayerWinner)
         {
+            if (isPlayerWinner)
+            {
+                DexHigh.Audio.AudioManager.Instance?.PlayVictory();
+            }
+            else
+            {
+                DexHigh.Audio.AudioManager.Instance?.PlayDefeat();
+            }
+
             if (_winnerScreenPanel != null)
             {
                 _winnerScreenPanel.SetActive(true);
@@ -389,6 +423,14 @@ namespace DexHigh.UI
             }
         }
 
+        public void HideWinnerScreen()
+        {
+            if (_winnerScreenPanel != null)
+            {
+                _winnerScreenPanel.SetActive(false);
+            }
+        }
+
         private void OnRestartClicked()
         {
             Core.BattleGameManager.Instance?.RestartBattle();
@@ -396,7 +438,14 @@ namespace DexHigh.UI
 
         private void OnLeaveClicked()
         {
-            Core.BattleGameManager.Instance?.RestartBattle();
+            if (Core.BattleGameManager.Instance != null)
+            {
+                Core.BattleGameManager.Instance.ReturnToMainMenu();
+            }
+            else
+            {
+                MainMenuUI.Instance?.ShowMenu();
+            }
         }
     }
 }

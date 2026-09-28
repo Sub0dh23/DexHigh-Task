@@ -9,6 +9,7 @@ namespace DexHigh.Core
 {
     public enum BattleState
     {
+        MainMenu,
         Warmup,
         Battle,
         Ended
@@ -16,7 +17,19 @@ namespace DexHigh.Core
 
     public class BattleGameManager : MonoBehaviour
     {
-        public static BattleGameManager Instance { get; private set; }
+        private static BattleGameManager _instance;
+        public static BattleGameManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<BattleGameManager>(FindObjectsInactive.Include);
+                }
+                return _instance;
+            }
+        }
+        public static bool StartInBattleOnLoad = false;
 
         [Header("Combatants")]
         [SerializeField] private DragonHealth _playerDragon;
@@ -27,31 +40,50 @@ namespace DexHigh.Core
         [SerializeField] private Transform _aiSpawnPoint;
 
         [Header("UI & Camera")]
+        [SerializeField] private MainMenuUI _mainMenuUI;
         [SerializeField] private CombatHUD _combatHUD;
         [SerializeField] private CombatCamera.DynamicCombatCamera _combatCamera;
 
         [Header("Battle Settings")]
         [SerializeField] private float _warmupDuration = 1f;
 
-        private BattleState _currentState = BattleState.Warmup;
+        private BattleState _currentState = BattleState.MainMenu;
+        private Vector3 _playerDefaultPosition = new Vector3(-9f, 0f, 0f);
+        private Quaternion _playerDefaultRotation = Quaternion.Euler(0f, 90f, 0f);
+        private Vector3 _aiDefaultPosition = new Vector3(9f, 0f, 0f);
+        private Quaternion _aiDefaultRotation = Quaternion.Euler(0f, 270f, 0f);
 
         public BattleState CurrentState => _currentState;
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
+            if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
-            Instance = this;
+            _instance = this;
+            CacheInitialSpawns();
         }
 
         private void Start()
         {
             FindReferencesIfNull();
             RegisterEvents();
-            StartCoroutine(StartBattleRoutine());
+
+            if (StartInBattleOnLoad)
+            {
+                StartInBattleOnLoad = false;
+                if (_mainMenuUI != null) _mainMenuUI.HideMenu();
+                if (_combatHUD != null) _combatHUD.gameObject.SetActive(true);
+                StartCoroutine(StartBattleRoutine());
+            }
+            else
+            {
+                _currentState = BattleState.MainMenu;
+                if (_combatHUD != null) _combatHUD.gameObject.SetActive(false);
+                if (_mainMenuUI != null) _mainMenuUI.ShowMenu();
+            }
         }
 
         private void OnDestroy()
@@ -81,6 +113,38 @@ namespace DexHigh.Core
             if (_combatCamera == null)
             {
                 _combatCamera = FindFirstObjectByType<CombatCamera.DynamicCombatCamera>();
+            }
+
+            if (_mainMenuUI == null)
+            {
+                _mainMenuUI = FindFirstObjectByType<MainMenuUI>(FindObjectsInactive.Include);
+            }
+
+            CacheInitialSpawns();
+        }
+
+        private void CacheInitialSpawns()
+        {
+            if (_playerSpawnPoint != null)
+            {
+                _playerDefaultPosition = _playerSpawnPoint.position;
+                _playerDefaultRotation = _playerSpawnPoint.rotation;
+            }
+            else if (_playerDragon != null)
+            {
+                _playerDefaultPosition = _playerDragon.transform.position;
+                _playerDefaultRotation = _playerDragon.transform.rotation;
+            }
+
+            if (_aiSpawnPoint != null)
+            {
+                _aiDefaultPosition = _aiSpawnPoint.position;
+                _aiDefaultRotation = _aiSpawnPoint.rotation;
+            }
+            else if (_aiDragon != null)
+            {
+                _aiDefaultPosition = _aiDragon.transform.position;
+                _aiDefaultRotation = _aiDragon.transform.rotation;
             }
         }
 
@@ -165,9 +229,104 @@ namespace DexHigh.Core
             }
         }
 
+        public void StartGameFromMenu()
+        {
+            ResetCombatants();
+
+            if (_mainMenuUI != null)
+            {
+                _mainMenuUI.HideMenu();
+            }
+
+            if (_combatHUD != null)
+            {
+                _combatHUD.gameObject.SetActive(true);
+                _combatHUD.InitializeHUD();
+            }
+
+            StartCoroutine(StartBattleRoutine());
+        }
+
+        public void ReturnToMainMenu()
+        {
+            StopAllCoroutines();
+            _currentState = BattleState.MainMenu;
+
+            if (_combatHUD != null)
+            {
+                _combatHUD.HideWinnerScreen();
+                _combatHUD.gameObject.SetActive(false);
+            }
+
+            ResetCombatants();
+
+            if (_mainMenuUI != null)
+            {
+                _mainMenuUI.ShowMenu();
+            }
+        }
+
+        public void ResetCombatants()
+        {
+            if (_playerDragon != null)
+            {
+                _playerDragon.ResetHealth();
+
+                Vector3 targetPos = _playerSpawnPoint != null ? _playerSpawnPoint.position : _playerDefaultPosition;
+                Quaternion targetRot = _playerSpawnPoint != null ? _playerSpawnPoint.rotation : _playerDefaultRotation;
+
+                if (_playerDragon.TryGetComponent<DragonMotor>(out var motorP))
+                {
+                    motorP.Teleport(targetPos, targetRot);
+                }
+                else
+                {
+                    if (_playerDragon.TryGetComponent<CharacterController>(out var ccP)) ccP.enabled = false;
+                    _playerDragon.transform.position = targetPos;
+                    _playerDragon.transform.rotation = targetRot;
+                    if (ccP != null) ccP.enabled = true;
+                }
+
+                if (_playerDragon.TryGetComponent<DragonCombat>(out var combatP))
+                {
+                    combatP.ResetCombat();
+                }
+            }
+
+            if (_aiDragon != null)
+            {
+                _aiDragon.ResetHealth();
+
+                Vector3 targetPos = _aiSpawnPoint != null ? _aiSpawnPoint.position : _aiDefaultPosition;
+                Quaternion targetRot = _aiSpawnPoint != null ? _aiSpawnPoint.rotation : _aiDefaultRotation;
+
+                if (_aiDragon.TryGetComponent<DragonMotor>(out var motorAI))
+                {
+                    motorAI.Teleport(targetPos, targetRot);
+                }
+                else
+                {
+                    if (_aiDragon.TryGetComponent<CharacterController>(out var ccAI)) ccAI.enabled = false;
+                    _aiDragon.transform.position = targetPos;
+                    _aiDragon.transform.rotation = targetRot;
+                    if (ccAI != null) ccAI.enabled = true;
+                }
+
+                if (_aiDragon.TryGetComponent<DragonCombat>(out var combatAI))
+                {
+                    combatAI.ResetCombat();
+                }
+
+                if (_aiDragon.TryGetComponent<AI.AIDragonController>(out var aiCtrl))
+                {
+                    aiCtrl.SetState(AI.AIState.Idle);
+                }
+            }
+        }
+
         public void RestartBattle()
         {
-            // Option 1: Reload active scene for complete clean state
+            StartInBattleOnLoad = true;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }

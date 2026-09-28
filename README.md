@@ -13,7 +13,7 @@
 - **Repository:** [https://github.com/Sub0dh23/DexHigh-Task.git](https://github.com/Sub0dh23/DexHigh-Task.git)
 - **Deliverables:**
   - 🎮 **Playable Build:** *[Available in Releases / Build folder]*
-  - 🎥 **Gameplay Video (1–2 min):** *[Link to demo video]*
+  - 🎥 **Gameplay Video (1–2 min):** Included directly in repository at [`Recordings/Gameplay_002.webm`](Recordings/Gameplay_002.webm)
 
 ---
 
@@ -166,7 +166,8 @@ Leveraging AI significantly expedited boilerplate generation and complex geometr
 
 ---
 
-## ⚖️ Known Issues & Future Improvements
+## 🎵 Audio & Polish Highlights
 
-- **Audio SFX:** Visuals, screen shake, and hit reactions are fully implemented; adding spatial 3D audio clips for roar, wing flap, and impact slam would further elevate immersion.
-- **Additional Abilities:** Adding defensive parries or aerial dodge rolls would deepen the duel dynamics.
+- **Dynamic Combat Soundscape:** Custom trimmed audio effects integrated for all dragon abilities (Fire Breath flame burst, Tail Whip crack, and Heavy Impact Sky Dive slam).
+- **Stinger Fanfares & Atmosphere:** Dedicated Victory & Defeat music cues and ambient colosseum music.
+- **Main Menu UI:** Dota 2 dark fantasy aesthetic gateway with Play Game and Exit buttons, full hotkey briefing, and seamless arena escape/return handling.

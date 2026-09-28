@@ -132,6 +132,33 @@ namespace DexHigh.Characters
             _isRotationLocked = false;
         }
 
+        public void Teleport(Vector3 position, Quaternion rotation)
+        {
+            if (_characterController != null)
+            {
+                _characterController.enabled = false;
+            }
+
+            transform.position = position;
+            transform.rotation = rotation;
+
+            ResetMotor();
+            _lookDirection = rotation * Vector3.forward;
+
+            if (_characterController != null)
+            {
+                _characterController.enabled = true;
+            }
+
+            if (TryGetComponent<UnityEngine.AI.NavMeshAgent>(out var agent))
+            {
+                if (agent.isOnNavMesh)
+                {
+                    agent.Warp(position);
+                }
+            }
+        }
+
         private void Update()
         {
             UpdateRotation();

@@ -31,4 +31,4 @@ MonoBehaviour:
   _impactVfxPrefab: {fileID: 6180010879574232069, guid: 9e6551c71e15372c7ba62f1ca1a97629, type: 3}
   _targetIndicatorPrefab: {fileID: 3553493019905862743, guid: 71c20bcc057b20cf19fbcdc0ad8dc9fd, type: 3}
   _castAudioClip: {fileID: 0}
-  _impactAudioClip: {fileID: 0}
+  _impactAudioClip: {fileID: 8300000, guid: 3b7a21bb40734f2b8b1d2275448e1e7b, type: 3}

@@ -29,5 +29,5 @@ MonoBehaviour:
   _vfxPrefab: {fileID: 3096649601837045837, guid: 187cb03322b429d529ddf11f0460d495, type: 3}
   _impactVfxPrefab: {fileID: 0}
   _targetIndicatorPrefab: {fileID: 0}
-  _castAudioClip: {fileID: 0}
+  _castAudioClip: {fileID: 8300000, guid: 4039dcd02621438484b0b35fa8796d4e, type: 3}
   _impactAudioClip: {fileID: 0}

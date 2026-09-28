@@ -52,7 +52,6 @@ namespace DexHigh.Characters
             _isDead = false;
             _currentHealth = _maxHealth > 0f ? _maxHealth : 200f;
             CacheMaterials();
-            Debug.Log($"<color=#3498DB>[DragonHealth]</color> <b>{name}</b> initialized. Health: {_currentHealth}/{_maxHealth}");
         }
 
         private void CacheMaterials()
@@ -94,7 +93,6 @@ namespace DexHigh.Characters
             if (_isDead || _isInvulnerable || damageInfo.Amount <= 0f) return;
 
             _currentHealth = Mathf.Max(0f, _currentHealth - damageInfo.Amount);
-            Debug.Log($"<color=#E67E22>[DragonHealth]</color> <b>{name}</b> took {damageInfo.Amount} damage from {damageInfo.Attacker?.name} ({damageInfo.AbilitySource}). Remaining HP: {_currentHealth}/{_maxHealth}");
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             OnDamaged?.Invoke(damageInfo);
 
@@ -110,7 +108,6 @@ namespace DexHigh.Characters
         {
             _isDead = true;
             StopBurn();
-            Debug.LogWarning($"<color=#E74C3C>[DragonHealth]</color> <b>{name}</b> DIED! Killer: {killerInfo.Attacker?.name} via {killerInfo.AbilitySource}");
             OnDied?.Invoke(killerInfo);
         }
 

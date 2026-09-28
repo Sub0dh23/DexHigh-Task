@@ -39,6 +39,13 @@ namespace DexHigh.Characters
         {
             if (_health != null && !_health.IsAlive) return;
 
+            if (DexHigh.Core.BattleGameManager.Instance != null &&
+                DexHigh.Core.BattleGameManager.Instance.CurrentState != DexHigh.Core.BattleState.Battle)
+            {
+                _motor.SetMoveInput(Vector3.zero);
+                return;
+            }
+
             HandleMovementInput();
             HandleAiming();
             HandleAbilitiesInput();

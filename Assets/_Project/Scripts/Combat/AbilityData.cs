@@ -52,5 +52,11 @@ namespace DexHigh.Combat
         public GameObject TargetIndicatorPrefab => _targetIndicatorPrefab;
         public AudioClip CastAudioClip => _castAudioClip;
         public AudioClip ImpactAudioClip => _impactAudioClip;
+
+        public void SetAudioClips(AudioClip castAudio, AudioClip impactAudio = null)
+        {
+            _castAudioClip = castAudio;
+            if (impactAudio != null) _impactAudioClip = impactAudio;
+        }
     }
 }
