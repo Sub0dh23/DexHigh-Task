@@ -11,9 +11,10 @@
 - **Target Platform:** PC / Standalone (Windows, macOS, Linux)
 - **Primary Scene:** [`Assets/_Project/Scenes/DragonArenaBattle.unity`](Assets/_Project/Scenes/DragonArenaBattle.unity)
 - **Repository:** [https://github.com/Sub0dh23/DexHigh-Task.git](https://github.com/Sub0dh23/DexHigh-Task.git)
-- **Deliverables:**
-  - 🎮 **Playable Build:** *[Available in Releases / Build folder]*
-  - 🎥 **Gameplay Video (1–2 min):** Included directly in repository at [`Recordings/Gameplay_002.webm`](Recordings/Gameplay_002.webm)
+- **Deliverables & Links:**
+  - 📂 **Google Drive Folder (Build, Video & Docs):** [DexHigh Task Google Drive](https://drive.google.com/drive/u/0/folders/1hSZMfNlij99pf4cEUKhaSvNYupK40m5S)
+  - 🎮 **Playable Windows Build (64-bit):** Available in Google Drive folder (`DragonArena_Windows_x64.zip`)
+  - 🎥 **Gameplay Video:** Available in Google Drive (`Gameplay Recording/`) and directly in repo at [`Recordings/Gameplay_002.webm`](Recordings/Gameplay_002.webm)
 
 ---
 
